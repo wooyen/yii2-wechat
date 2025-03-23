@@ -1,0 +1,35 @@
+{
+	"name": "wooyen/yii2-wechat",
+	"description": "Wechat SDK for Yii2",
+	"type": "library",
+	"require": {
+		"php": ">=8.2",
+		"ext-curl": "*",
+		"yiisoft/yii2": "~2.0.51"
+	},
+	"require-dev": {},
+	"suggest": {},
+	"license": "GPL",
+	"autoload": {
+		"psr-4": {
+			"yii\\wechat\\": "src/"
+		}
+	},
+	"authors": [
+		{
+			"name": "WU Yan",
+			"email": "wooyen@163.com"
+		}
+	],
+	"repositories": {
+		"asset-packagist": {
+			"type": "composer",
+			"url": "https://asset-packagist.org"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"yiisoft/yii2-composer": true
+		}
+	}
+}

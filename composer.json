@@ -5,9 +5,11 @@
 	"require": {
 		"php": ">=8.2",
 		"ext-curl": "*",
-		"yiisoft/yii2": "~2.0.51"
+		"yiisoft/yii2": "~2.0.36"
 	},
-	"require-dev": {},
+	"require-dev": {
+		"yiisoft/yii2-redis": "~2.0.0"
+	},
 	"suggest": {},
 	"license": "GPL",
 	"autoload": {

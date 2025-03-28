@@ -15,7 +15,10 @@
 	"autoload": {
 		"psr-4": {
 			"yii\\wechat\\": "src/"
-		}
+		},
+		"files": [
+			"src/bootstrap.php"
+		]
 	},
 	"authors": [
 		{

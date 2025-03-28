@@ -8,9 +8,10 @@ class OAuthEvent extends Event
 	public const EVENT_NAME = 'wechat_oauth';
 	public $openid;
 	public $unionid;
-	public function __construct($openid, $unionid)
-	{
-		$this->openid = $openid;
-		$this->unionid = $unionid;
-	}
+	public $scope;
+	public $is_snapshotuser;
+	public $access_token;
+	public $refresh_token;
+	public $access_token_expire;
+	public $refresh_token_expire;
 }

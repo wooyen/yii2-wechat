@@ -81,6 +81,9 @@ class Wechat extends Component
 		], false);
 		$openid = $res['openid'];
 		$unionid = $res['unionid'];
+		$res['access_token_expire'] = time() + $res['expires_in'];
+		$res['refresh_token_expire'] = time() + self::OAUTH_TOKEN_TTL;
+		unset($res['expires_in']);
 		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY_BY_OPENID, $openid];
 		$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
 		if (!empty($unionid)) {

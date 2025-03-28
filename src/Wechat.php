@@ -16,13 +16,17 @@ class Wechat extends Component
 {
 	public const OAUTH_TYPE_BASE = 'snsapi_base';
 	public const OAUTH_TYPE_USERINFO = 'snsapi_userinfo';
+	public const EVENT_ACCESS_TOKEN_REFRESHED = 'access_token_refreshed';
+	private const OAUTH_COOKIE_NAME = '__oauth_info';
+	private const OAUTH_TOKEN_CACHE_KEY_BY_OPENID = '__oauth_token_by_openid';
+	private const OAUTH_TOKEN_CACHE_KEY_BY_UNIONID = '__oauth_token_by_unionid';
+	private const OAUTH_TOKEN_TTL = 30 * 24 * 60 * 60;
 	public const ENDPOINTS = [
 		'https://api.weixin.qq.com',
 		'https://api2.weixin.qq.com',
 	];
 	private $_access_token_cache_key;
 	private $_jsapi_ticket_cache_key;
-	private $_shared_lock_available = false;
 	private $_access_token_lock_key;
 	public $appId;
 	public $appSecret;
@@ -30,6 +34,7 @@ class Wechat extends Component
 	public $msgAesKey;
 	public $httpProxy;
 	public $httpProxyAuth;
+	public $refreshTokenTimeBuffer = 300;
 	public $cache = 'cache';
 	public $mutex = 'mutex';
 	public function init()
@@ -38,16 +43,51 @@ class Wechat extends Component
 		if (empty($this->appId) || empty($this->appSecret)) {
 			throw new WechatInvalidConfigException('appId and appSecret are required');
 		}
+		if ($this->refreshTokenTimeBuffer <= 0) {
+			Yii::warning('The time buffer for refreshing access token can not be negative, using default value 300', __METHOD__);
+			$this->refreshTokenTimeBuffer = 300;
+		}
 		$this->cache = Instance::ensure($this->cache, Cache::class);
 		$this->mutex = Instance::ensure($this->mutex, Mutex::class);
 		$this->_access_token_cache_key = md5(serialize([__CLASS__, $this->appId, 'access_token']));
 		$this->_jsapi_ticket_cache_key = md5(serialize([__CLASS__, $this->appId, 'jsapi_ticket']));
-		$this->_shared_lock_available = $this->mutex instanceof SharedMutex;
 		$this->_access_token_lock_key = md5(serialize([__CLASS__, $this->appId, 'access_token_lock']));
 	}
 	public function isWechat(): bool
 	{
 		return strpos(Yii::$app->request->userAgent, 'MicroMessenge') !== false;
+	}
+	public function authRequired(string $returnUrl = null, string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
+	{
+		if (empty($returnUrl)) {
+			$returnUrl = Yii::$app->request->absoluteUrl;
+		}
+		$url = 'https://open.weixin.qq.com/connect/oauth2/authorize';
+		$url .= '?appid=' . urlencode($this->appid);
+		$url .= '&redirect_uri=' . urlencode($returnUrl);
+		$url .= '&response_type=code&scope=' . urlencode($type);
+		$url .= '&state=' . urlencode($state);
+		$url .= '#wechat_redirect';
+		Yii::trace("Redirecting to: $url", __METHOD__);
+		Yii::$app->response->redirect($url)->send();
+	}
+	public function getOauthInfoFromCode(string $code): array
+	{
+		$res = $this->curl('/sns/oauth2/access_token', [
+			'appid' => $this->appid,
+			'secret' => $this->appSecret,
+			'code' => $code,
+			'grant_type' => 'authorization_code',
+		], false);
+		$openid = $res['openid'];
+		$unionid = $res['unionid'];
+		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY_BY_OPENID, $openid];
+		$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
+		if (!empty($unionid)) {
+			$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY_BY_UNIONID, $unionid];
+			$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
+		}
+		return $res;
 	}
 	public function getAccessToken(): string
 	{
@@ -55,7 +95,7 @@ class Wechat extends Component
 		if ($res === false || $res['expired_at'] < time()) {
 			return $this->updateAccessToken();
 		}
-		if ($res['expired_at'] - time() < 600) {
+		if ($res['expired_at'] - time() < $this->refreshTokenTimeBuffer) {
 			Yii::$app->response->on(Response::EVENT_AFTER_SEND, function () {
 				$this->updateAccessToken();
 			});
@@ -65,6 +105,10 @@ class Wechat extends Component
 	public function updateAccessToken(): string
 	{
 		$locker = new SimpleLocker($this->mutex, $this->_access_token_lock_key);
+		$res = $this->cache->get($this->_access_token_cache_key);
+		if ($res !== false && $res['expired_at'] - time() > $this->refreshTokenTimeBuffer * 2) {
+			return $res['token'];
+		}
 		$res = $this->curl('/cgi-bin/token', [
 			'grant_type' => 'client_credential',
 			'appid' => $this->appId,

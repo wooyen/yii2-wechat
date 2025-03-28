@@ -53,7 +53,7 @@ $this->registerJsVar('statusCheckUrl', $statusCheckUrl);
 					window.location.href = returnUrl;
 				} else if (response.data.status === 'expired') {
 					$('#login-status').html('<p class="text-warning">二维码已过期，请刷新页面重试</p>');
-				} else if (response.data.status === 'scanning') {
+				} else if (response.data.status === 'waiting') {
 					checkLoginStatus(scene, expire_at);
 				} else {
 					$('#login-status').html('<p class="text-warning">登录失败，请刷新页面重试</p>');

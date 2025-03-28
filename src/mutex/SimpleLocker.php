@@ -11,7 +11,7 @@ class SimpleLocker
 		private string $key,
 	) {
 		if (!$this->mutex->acquire($this->key)) {
-			throw new LockFail($this->key);
+			throw new LockException($this->key);
 		}
 	}
 	public function __destruct()

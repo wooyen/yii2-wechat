@@ -3,7 +3,7 @@ namespace yii\wechat;
 
 use Yii;
 
-class WechatResponseException extends WechatException
+class ServerResponseException extends Exception
 {
 
 	private $response;

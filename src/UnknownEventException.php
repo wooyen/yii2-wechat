@@ -3,7 +3,7 @@ namespace yii\wechat;
 
 use Yii;
 
-class WechatUnknowEventException extends WechatException
+class UnknownEventException extends Exception
 {
 
 	public $type;

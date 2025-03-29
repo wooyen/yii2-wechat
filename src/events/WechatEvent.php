@@ -2,8 +2,8 @@
 namespace yii\wechat\events;
 
 use yii\base\Event;
-use yii\wechat\WechatUnknowEventException;
-use yii\wechat\WechatUnknowMessageException;
+use yii\wechat\UnknownEventException;
+use yii\wechat\UnknownMessageException;
 use yii\wechat\Wechat;
 
 abstract class WechatEvent extends Event
@@ -43,7 +43,7 @@ abstract class WechatEvent extends Event
 			case 'VIEW':
 				return new ViewEvent($config);
 			default:
-				throw new WechatUnknowEventException($config['event']);
+				throw new UnknownEventException($config['event']);
 		}
 	}
 
@@ -65,7 +65,7 @@ abstract class WechatEvent extends Event
 			case Wechat::MESSAGE_LINK:
 				return new LinkMsgEvent($config);
 			default:
-				throw new WechatUnknowMessageException($config['MsgType']);
+				throw new UnknownMessageException($config['MsgType']);
 		}
 	}
 

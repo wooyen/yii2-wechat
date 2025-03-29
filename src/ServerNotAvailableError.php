@@ -3,7 +3,7 @@ namespace yii\wechat;
 
 use Yii;
 
-class WechatNotAvailableError extends WechatException
+class ServerNotAvailableError extends Exception
 {
 	public function __construct()
 	{

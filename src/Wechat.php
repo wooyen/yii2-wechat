@@ -374,15 +374,15 @@ class Wechat extends Component
 			$res = Json::decode($result, true);
 			if ($res === null) {
 				Yii::error("The response from wechat server is not in correct format: {$result}", __METHOD__);
-				throw new WechatResponseException($result);
+				throw new ServerResponseException($result);
 			}
 			if (!empty($res['errcode'])) {
 				Yii::error("Wechat returns error: [{$res['errcode']}] {$res['errmsg']}.", __METHOD__);
-				throw new WechatReturnError($res['errcode'], $res['errmsg']);
+				throw new ServerReturnError($res['errcode'], $res['errmsg']);
 			}
 			return $res;
 		}
 		Yii::error('Failed to access wechat server', __METHOD__);
-		throw new WechatNotAvailableError();
+		throw new ServerNotAvailableError();
 	}
 }

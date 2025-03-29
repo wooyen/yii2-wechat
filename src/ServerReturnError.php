@@ -1,7 +1,7 @@
 <?php
 namespace yii\wechat;
 
-class WechatReturnError extends WechatException
+class ServerReturnError extends Exception
 {
 
 	public function __construct(int $code, string $msg = null)

@@ -1,11 +1,13 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 class ScanEvent extends WechatEvent
 {
 	use SceneTrait;
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.scan';
+		return Wechat::EVENT_SCAN;
 	}
 }

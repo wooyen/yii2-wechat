@@ -1,13 +1,15 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 class LocationEvent extends WechatEvent
 {
 	public $latitude;
 	public $longitude;
 	public $precision;
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.location';
+		return Wechat::EVENT_LOCATION;
 	}
 }

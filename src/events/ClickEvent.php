@@ -1,11 +1,13 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 class ClickEvent extends WechatEvent
 {
 	public $eventKey;
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.click';
+		return Wechat::EVENT_CLICK;
 	}
 }

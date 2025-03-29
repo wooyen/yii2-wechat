@@ -1,11 +1,13 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 class SubscribeEvent extends WechatEvent
 {
 	use SceneTrait;
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.subscribe';
+		return Wechat::EVENT_SUBSCRIBE;
 	}
 }

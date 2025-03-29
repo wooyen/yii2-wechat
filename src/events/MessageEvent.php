@@ -1,13 +1,15 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 abstract class MessageEvent extends WechatEvent
 {
 	public $msgId;
 	public $msgDataId;
 	public $idx;
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.message';
+		return Wechat::EVENT_MESSAGE;
 	}
 }

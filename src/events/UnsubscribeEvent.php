@@ -1,10 +1,12 @@
 <?php
 namespace yii\wechat\events;
 
+use yii\wechat\Wechat;
+
 class UnsubscribeEvent extends WechatEvent
 {
-	public function eventName()
+	public function eventName(): string
 	{
-		return 'wechat.unsubscribe';
+		return Wechat::EVENT_UNSUBSCRIBE;
 	}
 }

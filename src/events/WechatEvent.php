@@ -12,7 +12,8 @@ abstract class WechatEvent extends Event
 	public $toUserName;
 	public $createTime;
 	public $response;
-	protected static function normalizeConfig($config)
+	abstract public function eventName(): string;
+	private static function normalizeConfig(array $config): array
 	{
 		return array_reduce(array_keys($config), function ($acc, $key) use ($config) {
 			$new_key = strtolower(substr($key, 0, 1)) . substr($key, 1);
@@ -20,7 +21,7 @@ abstract class WechatEvent extends Event
 			return $acc;
 		}, []);
 	}
-	public static function create($config)
+	public static function create(array $config): WechatEvent
 	{
 		$config = self::normalizeConfig($config);
 		if ($config['msgType'] != 'event') {
@@ -47,7 +48,7 @@ abstract class WechatEvent extends Event
 		}
 	}
 
-	private static function createMessageEvent($config)
+	private static function createMessageEvent(array $config): MessageEvent
 	{
 		switch ($config['msgType']) {
 			case Wechat::MESSAGE_TEXT:
@@ -69,7 +70,7 @@ abstract class WechatEvent extends Event
 		}
 	}
 
-	public function setResponseContent($content, $force = true)
+	public function setResponseContent(string $content, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;
@@ -81,7 +82,7 @@ abstract class WechatEvent extends Event
 		return true;
 	}
 
-	public function setResponseImage($mediaId, $force = true)
+	public function setResponseImage(string $mediaId, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;
@@ -95,7 +96,7 @@ abstract class WechatEvent extends Event
 		return true;
 	}
 
-	public function setResponseVoice($mediaId, $force = true)
+	public function setResponseVoice(string $mediaId, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;
@@ -109,7 +110,7 @@ abstract class WechatEvent extends Event
 		return true;
 	}
 
-	public function setResponseVideo($mediaId, $title, $desc, $force = true)
+	public function setResponseVideo(string $mediaId, string $title, string $desc, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;
@@ -125,7 +126,7 @@ abstract class WechatEvent extends Event
 		return true;
 	}
 
-	public function setResponseMusic($title, $desc, $url, $hqUrl, $thumbId, $force = true)
+	public function setResponseMusic(string $title, string $desc, string $url, string $hqUrl, string $thumbId, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;
@@ -143,7 +144,7 @@ abstract class WechatEvent extends Event
 		return true;
 	}
 
-	public function setResponseArticles($articles, $force = true)
+	public function setResponseArticles(array $articles, bool $force = true): bool
 	{
 		if (!$force && !empty($this->response)) {
 			return false;

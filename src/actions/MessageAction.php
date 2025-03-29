@@ -3,14 +3,14 @@ namespace yii\wechat\actions;
 
 use SimpleXMLElement;
 use Yii;
+use yii\base\Action;
+use yii\di\Instance;
+use yii\web\Response;
 use yii\wechat\MessageCryptoException;
 use yii\wechat\MessageParamException;
 use yii\wechat\SignatureException;
 use yii\wechat\Wechat;
 use yii\wechat\events\WechatEvent;
-use yii\base\Action;
-use yii\di\Instance;
-use yii\web\Response;
 
 class MessageAction extends Action
 {
@@ -26,7 +26,6 @@ class MessageAction extends Action
 			$this->acceptor = [$this->acceptor];
 		}
 	}
-
 	public function run()
 	{
 		$request = Yii::$app->request;

@@ -17,6 +17,9 @@ class Wechat extends Component
 	public const OAUTH_TYPE_BASE = 'snsapi_base';
 	public const OAUTH_TYPE_USERINFO = 'snsapi_userinfo';
 	public const EVENT_ACCESS_TOKEN_REFRESHED = 'access_token_refreshed';
+	public const EVENT_MESSAGE = 'wechat_message';
+	public const EVENT_PUSH = 'wechat_push';
+	public const EVENT_OAUTH = 'wechat_oauth';
 	private const OAUTH_COOKIE_NAME = '__oauth_info';
 	private const OAUTH_TOKEN_CACHE_KEY_BY_OPENID = '__oauth_token_by_openid';
 	private const OAUTH_TOKEN_CACHE_KEY_BY_UNIONID = '__oauth_token_by_unionid';

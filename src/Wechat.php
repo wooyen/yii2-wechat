@@ -27,6 +27,13 @@ class Wechat extends Component
 	public const EVENT_CLICK = 'wechat_click';
 	public const EVENT_VIEW = 'wechat_view';
 	public const EVENT_OAUTH = 'wechat_oauth';
+	public const MESSAGE_TEXT = 'text';
+	public const MESSAGE_IMAGE = 'image';
+	public const MESSAGE_VOICE = 'voice';
+	public const MESSAGE_VIDEO = 'video';
+	public const MESSAGE_SHORTVIDEO = 'shortvideo';
+	public const MESSAGE_LOCATION = 'location';
+	public const MESSAGE_LINK = 'link';
 	private const OAUTH_COOKIE_NAME = '__oauth_info';
 	private const OAUTH_TOKEN_CACHE_KEY_BY_OPENID = '__oauth_token_by_openid';
 	private const OAUTH_TOKEN_CACHE_KEY_BY_UNIONID = '__oauth_token_by_unionid';

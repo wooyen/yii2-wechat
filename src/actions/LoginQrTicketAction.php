@@ -2,18 +2,23 @@
 
 namespace yii\wechat\actions;
 
+use Closure;
 use Yii;
 use yii\base\Action;
+use yii\caching\Cache;
 use yii\di\Instance;
 use yii\web\Response;
 use yii\wechat\Wechat;
 
 class LoginQrTicketAction extends Action
 {
-	public const LOGIN_SCENE_CACHE_KEY_PREFIX = 'wechat_scene_login_';
+	public const CACHE_KEY_PREFIX = 'wechat_scene_login_';
+	public const WAITING_PIPE_KEY_PREFIX = 'wechat_scene_login_waiting_pipe_';
+	public const CACHE_TTL_AFTER_SCAN = 300;
 	public $wechat = 'wechat';
 	public $cache = 'cache';
 	public $expireTime = 60;
+	public $condition;
 	public function init()
 	{
 		parent::init();
@@ -29,9 +34,10 @@ class LoginQrTicketAction extends Action
 	{
 		Yii::$app->response->format = Response::FORMAT_JSON;
 		$scene = Yii::$app->security->generateRandomString(32);
-		$cacheKey = self::LOGIN_SCENE_CACHE_KEY_PREFIX . $scene;
+		$cacheKey = self::CACHE_KEY_PREFIX . $scene;
 		$this->cache->set($cacheKey, [
 			'status' => 'waiting',  // waiting, scanned, success
+			'condition' => $this->condition,
 			'created_at' => time(),
 		], $this->expireTime);
 		$ret = Yii::$app->wechat->createQrCode($scene, $this->expireTime);
@@ -44,5 +50,46 @@ class LoginQrTicketAction extends Action
 				'expire_at' => time() + $ret['expire_seconds'],
 			],
 		];
+	}
+	public static function scaned(string $scene, $user_id, Cache $cache)
+	{
+		$cacheKey = self::CACHE_KEY_PREFIX . $scene;
+		$data = $cache->get($cacheKey);
+		if ($data === false) {
+			return false;
+		}
+		if ($data['status'] !== 'waiting') {
+			return false;
+		}
+		$data['status'] = 'scanned';
+		$data['user_id'] = $user_id;
+		$cache->set($cacheKey, $data, self::CACHE_TTL_AFTER_SCAN);
+		if ($data['condition'] && $data['condition'] instanceof LoginSceneCondition) {
+			$data['condition']->signal(self::WAITING_PIPE_KEY_PREFIX . $scene, $user_id);
+		}
+		return true;
+	}
+	public static function check(string $scene, Cache $cache, bool $waitCb = true)
+	{
+		$cacheKey = self::CACHE_KEY_PREFIX . $scene;
+		for ($i = 0; $i < 2; ++$i) {
+			$data = $cache->get($cacheKey);
+			if ($data === false) {
+				return false;
+			}
+			$cond = $data['condition'] ?? null;
+			unset($data['condition']);
+			if ($data['status'] === 'scanned') {
+				$cache->delete($cacheKey);
+				return $data;
+			}
+			if ($i > 0 || !$cond || $cond instanceof LoginSceneCondition) {
+				return $data;
+			}
+			if (!$cond->wait(self::WAITING_PIPE_KEY_PREFIX . $scene)) {
+				return $data;
+			}
+		}
+		return $data;
 	}
 }

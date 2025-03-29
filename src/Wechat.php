@@ -5,6 +5,7 @@ namespace yii\wechat;
 use JsonException;
 use Yii;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 use yii\caching\Cache;
 use yii\di\Instance;
 use yii\helpers\Json;
@@ -19,6 +20,12 @@ class Wechat extends Component
 	public const EVENT_ACCESS_TOKEN_REFRESHED = 'access_token_refreshed';
 	public const EVENT_MESSAGE = 'wechat_message';
 	public const EVENT_PUSH = 'wechat_push';
+	public const EVENT_SUBSCRIBE = 'wechat_subscribe';
+	public const EVENT_UNSUBSCRIBE = 'wechat_unsubscribe';
+	public const EVENT_SCAN = 'wechat_scan';
+	public const EVENT_LOCATION = 'wechat_location';
+	public const EVENT_CLICK = 'wechat_click';
+	public const EVENT_VIEW = 'wechat_view';
 	public const EVENT_OAUTH = 'wechat_oauth';
 	private const OAUTH_COOKIE_NAME = '__oauth_info';
 	private const OAUTH_TOKEN_CACHE_KEY_BY_OPENID = '__oauth_token_by_openid';
@@ -44,7 +51,7 @@ class Wechat extends Component
 	{
 		parent::init();
 		if (empty($this->appId) || empty($this->appSecret)) {
-			throw new WechatInvalidConfigException('appId and appSecret are required');
+			throw new InvalidConfigException('appId and appSecret are required');
 		}
 		if ($this->refreshTokenTimeBuffer <= 0) {
 			Yii::warning('The time buffer for refreshing access token can not be negative, using default value 300', __METHOD__);

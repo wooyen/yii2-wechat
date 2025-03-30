@@ -16,6 +16,7 @@ class WechatLoginAction extends Action
 	public $backUrl;
 	public $qrTicketUrl;
 	public $statusUrl;
+	public $view = '@wechat/views/login';
 	public function init()
 	{
 		parent::init();
@@ -34,7 +35,7 @@ class WechatLoginAction extends Action
 	}
 	public function run()
 	{
-		return $this->controller->render('@wechat/views/login', [
+		return $this->controller->render($this->view, [
 			'qrTicketUrl' => Url::toRoute($this->qrTicketUrl),
 			'statusUrl' => Url::toRoute($this->statusUrl),
 			'backUrl' => Url::toRoute($this->backUrl),

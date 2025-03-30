@@ -1,7 +1,7 @@
 {
 	"name": "wooyen/yii2-wechat",
 	"description": "Wechat SDK for Yii2",
-	"type": "library",
+	"type": "yii2-extension",
 	"require": {
 		"php": ">=8.2",
 		"ext-curl": "*",
@@ -18,7 +18,7 @@
 		}
 	},
 	"extra": {
-		"yii2\\bootstrap": "yii\\wechat\\Bootstrap"
+		"bootstrap": "yii\\wechat\\Bootstrap"
 	},
 	"authors": [
 		{

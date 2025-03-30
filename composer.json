@@ -15,10 +15,10 @@
 	"autoload": {
 		"psr-4": {
 			"yii\\wechat\\": "src/"
-		},
-		"files": [
-			"src/bootstrap.php"
-		]
+		}
+	},
+	"extra": {
+		"yii2\\bootstrap": "yii\\wechat\\Bootstrap"
 	},
 	"authors": [
 		{

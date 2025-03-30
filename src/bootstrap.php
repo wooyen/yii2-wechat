@@ -1,4 +1,3 @@
 <?php
-use Yii;
 
-Yii::setAlias('@wechat', dirname(__DIR__));
+\Yii::setAlias('@wechat', dirname(__DIR__));

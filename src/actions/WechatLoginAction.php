@@ -1,11 +1,9 @@
 <?php
 
-namespace common\wechat\actions;
+namespace yii\wechat\actions;
 
-use Yii;
 use yii\base\Action;
 use yii\di\Instance;
-use common\wechat\events\OAuthEvent;
 use yii\wechat\filters\OAuthFilter;
 use yii\wechat\Wechat;
 

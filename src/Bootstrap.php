@@ -5,6 +5,6 @@ class Bootstrap implements BootstrapInterface
 {
 	public function bootstrap($app)
 	{
-		Yii::setAlias('@wechat', dirname(__DIR__));
+		Yii::setAlias('@wechat', __DIR__);
 	}
 }

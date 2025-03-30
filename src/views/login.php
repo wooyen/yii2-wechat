@@ -3,12 +3,12 @@ use yii\helpers\Html;
 
 /** @var \yii\web\View $this */
 /** @var string $qrTicketUrl */
-/** @var string $statusCheckUrl */
-
+/** @var string $statusUrl */
+/** @var string $backUrl */
 $this->title = '登录';
-$this->registerJsVar('returnUrl', $returnUrl);
 $this->registerJsVar('qrTicketUrl', $qrTicketUrl);
-$this->registerJsVar('statusCheckUrl', $statusCheckUrl);
+$this->registerJsVar('statusUrl', $statusUrl);
+$this->registerJsVar('backUrl', $backUrl);
 ?>
 <div class="site-login">
 	<div class="row justify-content-center">
@@ -46,11 +46,11 @@ $this->registerJsVar('statusCheckUrl', $statusCheckUrl);
 			$('#login-status').html('<p class="text-warning">二维码已过期，请刷新页面重试</p>');
 			return;
 		}
-		$.get(statusCheckUrl, { scene: scene }, function (response) {
+		$.get(statusUrl, { scene: scene }, function (response) {
 			if (response.code === 0) {
 				if (response.data.status === 'success') {
 					$('#login-status').html('<p class="text-success">登录成功，正在跳转...</p>');
-					window.location.href = returnUrl;
+					window.location.href = backUrl;
 				} else if (response.data.status === 'expired') {
 					$('#login-status').html('<p class="text-warning">二维码已过期，请刷新页面重试</p>');
 				} else if (response.data.status === 'waiting') {

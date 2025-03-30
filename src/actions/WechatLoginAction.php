@@ -12,8 +12,10 @@ use yii\wechat\Wechat;
 class WechatLoginAction extends Action
 {
 	public $wechat = 'wechat';
-	public $qrTicketUrl = '/site/login-qr';
-	public $statusCheckUrl = '/site/login-status';
+	public $oauthUrl;
+	public $backUrl;
+	public $qrTicketUrl;
+	public $statusUrl;
 	public function init()
 	{
 		parent::init();
@@ -24,15 +26,18 @@ class WechatLoginAction extends Action
 		$this->controller->attachBehavior('wechatOauth', [
 			'class' => OAuthFilter::class,
 			'wechat' => $this->wechat,
+			'oauthUrl' => $this->oauthUrl,
+			'backUrl' => $this->backUrl,
 		]);
-		//$this->controller->on(OAuthEvent::EVENT_NAME, [$this, 'onOAuth']);
+		$this->wechat->on(Wechat::EVENT_OAUTH, [$this, 'onOAuth']);
 		return parent::beforeAction($action);
 	}
 	public function run()
 	{
 		return $this->controller->render('@wechat/views/login', [
 			'qrTicketUrl' => $this->qrTicketUrl,
-			'statusCheckUrl' => $this->statusCheckUrl,
+			'statusUrl' => $this->statusUrl,
+			'backUrl' => $this->backUrl,
 		]);
 	}
 }

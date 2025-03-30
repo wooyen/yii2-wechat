@@ -78,14 +78,11 @@ class Wechat extends Component
 	{
 		return strpos(Yii::$app->request->userAgent, 'MicroMessenge') !== false;
 	}
-	public function authRequired(string $returnUrl = null, string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
+	public function authRequired(string $oauthUrl, string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
 	{
-		if (empty($returnUrl)) {
-			$returnUrl = Yii::$app->request->absoluteUrl;
-		}
 		$url = 'https://open.weixin.qq.com/connect/oauth2/authorize';
 		$url .= '?appid=' . urlencode($this->appid);
-		$url .= '&redirect_uri=' . urlencode($returnUrl);
+		$url .= '&redirect_uri=' . urlencode($oauthUrl);
 		$url .= '&response_type=code&scope=' . urlencode($type);
 		$url .= '&state=' . urlencode($state);
 		$url .= '#wechat_redirect';

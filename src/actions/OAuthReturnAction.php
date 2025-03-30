@@ -31,7 +31,7 @@ class OAuthReturnAction extends Action
 			'value' => $res,
 			'expire' => time() + Wechat::OAUTH_TOKEN_TTL,
 		]));
-		$this->trigger(Wechat::EVENT_OAUTH, new OAuthEvent($res));
+		$this->wechat->trigger(Wechat::EVENT_OAUTH, new OAuthEvent($res));
 		$redirect_url = Yii::$app->request->get('state');
 		if (empty($redirect_url)) {
 			return $this->controller->goBack();

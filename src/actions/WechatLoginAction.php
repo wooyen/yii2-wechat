@@ -11,6 +11,7 @@ use yii\wechat\Wechat;
 class WechatLoginAction extends Action
 {
 	public $wechat = 'wechat';
+	public $checkDelay = 1000;
 	public $oauthUrl;
 	public $backUrl;
 	public $qrTicketUrl;
@@ -37,6 +38,7 @@ class WechatLoginAction extends Action
 			'qrTicketUrl' => Url::toRoute($this->qrTicketUrl),
 			'statusUrl' => Url::toRoute($this->statusUrl),
 			'backUrl' => Url::toRoute($this->backUrl),
+			'checkDelay' => $this->checkDelay,
 		]);
 	}
 }

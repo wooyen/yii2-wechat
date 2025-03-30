@@ -7,7 +7,7 @@ use yii\wechat\Wechat;
 use yii\wechat\events\OAuthEvent;
 use yii\base\ActionFilter;
 use yii\di\Instance;
-
+use yii\helpers\Url;
 class OAuthFilter extends ActionFilter
 {
 	public $wechat = 'wechat';
@@ -30,7 +30,7 @@ class OAuthFilter extends ActionFilter
 				$this->wechat->trigger(Wechat::EVENT_OAUTH, new OAuthEvent($userInfo));
 				return parent::beforeAction($action);
 			}
-			$this->wechat->authRequired($this->oauthUrl, $this->oauthType, $this->backUrl);
+			$this->wechat->authRequired(Url::to($this->oauthUrl, true), $this->oauthType, Url::to($this->backUrl, true));
 		}
 		return parent::beforeAction($action);
 	}

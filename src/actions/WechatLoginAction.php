@@ -4,6 +4,7 @@ namespace yii\wechat\actions;
 
 use yii\base\Action;
 use yii\di\Instance;
+use yii\helpers\Url;
 use yii\wechat\filters\OAuthFilter;
 use yii\wechat\Wechat;
 
@@ -33,9 +34,9 @@ class WechatLoginAction extends Action
 	public function run()
 	{
 		return $this->controller->render('@wechat/views/login', [
-			'qrTicketUrl' => $this->qrTicketUrl,
-			'statusUrl' => $this->statusUrl,
-			'backUrl' => $this->backUrl,
+			'qrTicketUrl' => Url::toRoute($this->qrTicketUrl),
+			'statusUrl' => Url::toRoute($this->statusUrl),
+			'backUrl' => Url::toRoute($this->backUrl),
 		]);
 	}
 }

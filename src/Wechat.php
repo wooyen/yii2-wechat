@@ -2,8 +2,8 @@
 
 namespace yii\wechat;
 
-use JsonException;
 use Yii;
+use yii\base\Application;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\caching\Cache;
@@ -115,9 +115,15 @@ class Wechat extends Component
 			return $this->updateAccessToken();
 		}
 		if ($res['expired_at'] - time() < $this->refreshTokenTimeBuffer) {
-			Yii::$app->response->on(Response::EVENT_AFTER_SEND, function () {
-				$this->updateAccessToken();
-			});
+			if (Yii::$app instanceof WebApplication) {
+				Yii::$app->response->on(Response::EVENT_AFTER_SEND, function ($e) {
+					$this->updateAccessToken();
+				});
+			} else {
+				Yii::$app->on(Application::EVENT_AFTER_REQUEST, function ($e) {
+					$this->updateAccessToken();
+				});
+			}
 		}
 		return $res['token'];
 	}

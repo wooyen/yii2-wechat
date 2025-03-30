@@ -11,7 +11,7 @@
 		"yiisoft/yii2-redis": "~2.0.0"
 	},
 	"suggest": {},
-	"license": "GPL",
+	"license": "GPL-3.0-or-later",
 	"autoload": {
 		"psr-4": {
 			"yii\\wechat\\": "src/"

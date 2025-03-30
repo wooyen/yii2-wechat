@@ -12,6 +12,9 @@ use yii\helpers\Json;
 use yii\mutex\Mutex;
 use yii\web\Response;
 use yii\wechat\mutex\SimpleLocker;
+use yii\wechat\utils\UnionIDMapper;
+use yii\wechat\utils\DummyUnionIDMapper;
+
 
 class Wechat extends Component
 {
@@ -34,8 +37,8 @@ class Wechat extends Component
 	public const MESSAGE_LOCATION = 'location';
 	public const MESSAGE_LINK = 'link';
 	private const OAUTH_COOKIE_NAME = '__oauth_info';
-	private const OAUTH_TOKEN_CACHE_KEY_BY_OPENID = '__oauth_token_by_openid';
-	private const OAUTH_TOKEN_CACHE_KEY_BY_UNIONID = '__oauth_token_by_unionid';
+	private const OAUTH_TOKEN_CACHE_KEY = '__oauth_token_by_openid';
+	private const OAUTH_TOKEN_LOCK_KEY = '__oauth_token_lock';
 	private const OAUTH_TOKEN_TTL = 30 * 24 * 60 * 60;
 	public const ENDPOINTS = [
 		'https://api.weixin.qq.com',
@@ -53,6 +56,7 @@ class Wechat extends Component
 	public $refreshTokenTimeBuffer = 300;
 	public $cache = 'cache';
 	public $mutex = 'mutex';
+	public $unionIDMapper = DummyUnionIDMapper::class;
 	public function init()
 	{
 		parent::init();
@@ -65,6 +69,7 @@ class Wechat extends Component
 		}
 		$this->cache = Instance::ensure($this->cache, Cache::class);
 		$this->mutex = Instance::ensure($this->mutex, Mutex::class);
+		$this->unionIDMapper = Instance::ensure($this->unionIDMapper, UnionIDMapper::class);
 		$this->_access_token_cache_key = md5(serialize([__CLASS__, $this->appId, 'access_token']));
 		$this->_jsapi_ticket_cache_key = md5(serialize([__CLASS__, $this->appId, 'jsapi_ticket']));
 		$this->_access_token_lock_key = md5(serialize([__CLASS__, $this->appId, 'access_token_lock']));
@@ -100,13 +105,79 @@ class Wechat extends Component
 		$res['access_token_expire'] = time() + $res['expires_in'];
 		$res['refresh_token_expire'] = time() + self::OAUTH_TOKEN_TTL;
 		unset($res['expires_in']);
-		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY_BY_OPENID, $openid];
+		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY, $openid];
 		$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
 		if (!empty($unionid)) {
-			$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY_BY_UNIONID, $unionid];
-			$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
+			$this->unionIDMapper->attachUnionID($openid, $unionid, $this->appId);
 		}
 		return $res;
+	}
+	public function getOauthAccessToken(string $openid, string $unionid = null)
+	{
+		if (empty($openid)) {
+			if (empty($unionid)) {
+				return false;
+			}
+			$openid = $this->unionIDMapper->getOpenID($unionid, $this->appId);
+			if (empty($openid)) {
+				return false;
+			}
+		}
+		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY, $openid];
+		$res = $this->cache->get($key);
+		if ($res === false) {
+			return false;
+		}
+		if ($res['access_token_expire'] < time()) {
+			return $this->refreshOauthAccessToken($res['refresh_token']);
+		} else if ($res['access_token_expire'] - time() < $this->refreshTokenTimeBuffer) {
+			if (Yii::$app instanceof WebApplication) {
+				Yii::$app->response->on(Response::EVENT_AFTER_SEND, function ($e) {
+					$this->refreshOauthAccessToken($e->data);
+				}, $openid);
+			} else {
+				Yii::$app->on(Application::EVENT_AFTER_REQUEST, function ($e) {
+					$this->refreshOauthAccessToken($e->data);
+				}, $openid);
+			}
+		}
+		return $res['access_token'];
+	}
+	public function refreshOauthAccessToken(string $openid): string|bool
+	{
+		$lockKey = md5(serialize([__CLASS__, $this->appId, self::OAUTH_TOKEN_LOCK_KEY, $openid]));
+		$cacheKey = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY, $openid];
+		$locker = new SimpleLocker($this->mutex, $lockKey);
+		$res = $this->cache->get($cacheKey);
+		if ($res === false) {
+			return false;
+		}
+		$refreshTokenExpire = $res['refresh_token_expire'];
+		if ($refreshTokenExpire < time()) {
+			$this->cache->delete($cacheKey);
+			return false;
+		}
+		if ($res['access_token_expire'] - time() > $this->refreshTokenTimeBuffer * 2) {
+			return $res['access_token'];
+		}
+		$res = $this->curl('/sns/oauth2/refresh_token', [
+			'appid' => $this->appid,
+			'refresh_token' => $res['refresh_token'],
+			'grant_type' => 'refresh_token',
+		], false);
+		$res['access_token_expire'] = time() + $res['expires_in'];
+		$res['refresh_token_expire'] = $refreshTokenExpire;
+		unset($res['expires_in']);
+		$this->cache->set($cacheKey, $res, $refreshTokenExpire - time());
+		return $res['access_token'];
+	}
+	public function getOauthUserInfo(string $openid, string $lang = 'zh_CN'): array
+	{
+		return $this->curl('/sns/userinfo', [
+			'openid' => $openid,
+			'access_token' => $this->getOauthAccessToken($openid),
+			'lang' => $lang,
+		], false);
 	}
 	public function getAccessToken(): string
 	{
@@ -146,15 +217,6 @@ class Wechat extends Component
 		$this->cache->set($this->_access_token_cache_key, $result, $res['expires_in'] - 10);
 		return $result['token'];
 	}
-	public function refreshAccessToken(string $refresh_key): array
-	{
-		$res = $this->curl('/sns/oauth2/refresh_token', [
-			'appid' => $this->appid,
-			'refresh_token' => $refresh_key,
-			'grant_type' => 'refresh_token',
-		], false);
-		return [$res['access_token'], time() + $res['expires_in']];
-	}
 	public function jsSignPackage()
 	{
 		$ticket = $this->getjsapiTicket();
@@ -190,6 +252,13 @@ class Wechat extends Component
 			$this->cache->set($this->_jsapi_ticket_cache_key, $ticket, $res['expires_in'] - 10);
 		}
 		return $ticket;
+	}
+	public function getUserInfo(string $openid, string $lang = 'zh_CN'): array
+	{
+		return $this->curl('/cgi-bin/user/info', [
+			'openid' => $openid,
+			'lang' => $lang,
+		]);
 	}
 	public function createMenu(array $menu)
 	{

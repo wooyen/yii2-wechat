@@ -10,7 +10,7 @@ use yii\web\Cookie;
 use yii\wechat\Wechat;
 use yii\wechat\events\OAuthEvent;
 
-class OAuthReturnAction extends Action
+class OAuthAction extends Action
 {
 	public $wechat = 'wechat';
 	public function init()

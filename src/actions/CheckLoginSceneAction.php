@@ -7,6 +7,7 @@ use yii\base\Action;
 use yii\caching\Cache;
 use yii\di\Instance;
 use yii\redis\Connection;
+use yii\web\Response;
 class CheckLoginSceneAction extends Action
 {
 	public $cache = 'cache';
@@ -20,6 +21,7 @@ class CheckLoginSceneAction extends Action
 	}
 	public function run()
 	{
+		Yii::$app->response->format = Response::FORMAT_JSON;
 		$scene = Yii::$app->request->get('scene');
 		$data = LoginQrTicketAction::check($scene, $this->cache);
 		if (!$data) {

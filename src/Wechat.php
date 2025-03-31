@@ -98,14 +98,13 @@ class Wechat extends Component
 			'grant_type' => 'authorization_code',
 		], false);
 		$openid = $res['openid'];
-		$unionid = $res['unionid'];
 		$res['access_token_expire'] = time() + $res['expires_in'];
 		$res['refresh_token_expire'] = time() + self::OAUTH_TOKEN_TTL;
 		unset($res['expires_in']);
 		$key = [__CLASS__, $this->appId, self::OAUTH_TOKEN_CACHE_KEY, $openid];
 		$this->cache->set($key, $res, self::OAUTH_TOKEN_TTL);
-		if (!empty($unionid)) {
-			$this->unionIDMapper->attachUnionID($openid, $unionid, $this->appId);
+		if (array_key_exists('unionid', $res)) {
+			$this->unionIDMapper->attachUnionID($openid, $res['unionid'], $this->appId);
 		}
 		return $res;
 	}

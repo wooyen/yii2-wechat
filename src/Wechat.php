@@ -81,7 +81,7 @@ class Wechat extends Component
 	public function authRequired(string $oauthUrl, string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
 	{
 		$url = 'https://open.weixin.qq.com/connect/oauth2/authorize';
-		$url .= '?appid=' . urlencode($this->appid);
+		$url .= '?appid=' . urlencode($this->appId);
 		$url .= '&redirect_uri=' . urlencode($oauthUrl);
 		$url .= '&response_type=code&scope=' . urlencode($type);
 		$url .= '&state=' . urlencode($state);
@@ -92,7 +92,7 @@ class Wechat extends Component
 	public function getOauthInfoFromCode(string $code): array
 	{
 		$res = $this->curl('/sns/oauth2/access_token', [
-			'appid' => $this->appid,
+			'appid' => $this->appId,
 			'secret' => $this->appSecret,
 			'code' => $code,
 			'grant_type' => 'authorization_code',
@@ -158,7 +158,7 @@ class Wechat extends Component
 			return $res['access_token'];
 		}
 		$res = $this->curl('/sns/oauth2/refresh_token', [
-			'appid' => $this->appid,
+			'appid' => $this->appId,
 			'refresh_token' => $res['refresh_token'],
 			'grant_type' => 'refresh_token',
 		], false);
@@ -231,7 +231,7 @@ class Wechat extends Component
 			return "$k=$v";
 		}, array_keys($arr), $arr));
 		$arr['signature'] = sha1($signStr);
-		$arr['appId'] = $this->appid;
+		$arr['appId'] = $this->appId;
 		$arr['nonceStr'] = $arr['noncestr'];
 		unset($arr['jsapi_ticket']);
 		unset($arr['noncestr']);

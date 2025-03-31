@@ -10,7 +10,7 @@ function updateQrCode() {
 		}
 	});
 }
-function checkLoginStatus(scen, expire_at) {
+function checkLoginStatus(scene, expire_at) {
 	let lastCheck = Date.now();
 	if (expire_at * 1000 < lastCheck) {
 		$('.wechat-login-status').html('<p class="text-warning">二维码已过期，请刷新页面重试</p>');

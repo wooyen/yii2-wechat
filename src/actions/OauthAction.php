@@ -10,7 +10,7 @@ use yii\web\Cookie;
 use yii\wechat\Wechat;
 use yii\wechat\events\OAuthEvent;
 
-class OAuthAction extends Action
+class OauthAction extends Action
 {
 	public $wechat = 'wechat';
 	public function init()
@@ -29,7 +29,7 @@ class OAuthAction extends Action
 		$cookie->add(new Cookie([
 			'name' => Wechat::OAUTH_COOKIE_NAME,
 			'value' => $res,
-			'expire' => time() + Wechat::OAUTH_TOKEN_TTL,
+			'expire' => $res['refresh_token_expire'],
 		]));
 		$this->wechat->trigger(Wechat::EVENT_OAUTH, new OAuthEvent($res));
 		$redirect_url = Yii::$app->request->get('state');

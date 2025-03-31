@@ -36,7 +36,7 @@ class Wechat extends Component
 	public const MESSAGE_SHORTVIDEO = 'shortvideo';
 	public const MESSAGE_LOCATION = 'location';
 	public const MESSAGE_LINK = 'link';
-	private const OAUTH_COOKIE_NAME = '__oauth_info';
+	public const OAUTH_COOKIE_NAME = '__wechat_oauth_info';
 	private const OAUTH_TOKEN_CACHE_KEY = '__oauth_token_by_openid';
 	private const OAUTH_TOKEN_LOCK_KEY = '__oauth_token_lock';
 	private const OAUTH_TOKEN_TTL = 30 * 24 * 60 * 60;

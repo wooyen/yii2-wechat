@@ -25,7 +25,7 @@ class OAuthFilter extends ActionFilter
 	public function beforeAction($action)
 	{
 		if ($this->wechat->isWechat()) {
-			$userInfo = Yii::$app->request->cookies->getValue($this->wechat->getOauthCookieName());
+			$userInfo = Yii::$app->request->cookies->getValue(Wechat::OAUTH_COOKIE_NAME);
 			if (!empty($userInfo)) {
 				$this->wechat->trigger(Wechat::EVENT_OAUTH, new OAuthEvent($userInfo));
 				return parent::beforeAction($action);

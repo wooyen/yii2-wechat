@@ -2,7 +2,9 @@
 
 namespace yii\wechat\actions;
 
+use Yii;
 use yii\base\Action;
+use yii\base\Module;
 use yii\di\Instance;
 use yii\helpers\Url;
 use yii\wechat\filters\OAuthFilter;
@@ -21,17 +23,16 @@ class WechatLoginAction extends Action
 	{
 		parent::init();
 		$this->wechat = Instance::ensure($this->wechat, Wechat::class);
-	}
-	public function beforeAction($action)
-	{
-		$this->controller->attachBehavior('wechatOauth', [
-			'class' => OAuthFilter::class,
-			'wechat' => $this->wechat,
-			'oauthUrl' => $this->oauthUrl,
-			'backUrl' => $this->backUrl,
-		]);
+		Yii::$app->on(Module::EVENT_BEFORE_ACTION, function ($event) {
+			Yii::debug("WechatLoginAction: init: beforeAction", __METHOD__);
+			$event->sender->controller->attachBehavior('wechatOauth', [
+				'class' => OAuthFilter::class,
+				'wechat' => $this->wechat,
+				'oauthUrl' => $this->oauthUrl,
+				'backUrl' => $this->backUrl,
+			]);
+		});
 		$this->wechat->on(Wechat::EVENT_OAUTH, [$this, 'onOAuth']);
-		return parent::beforeAction($action);
 	}
 	public function run()
 	{

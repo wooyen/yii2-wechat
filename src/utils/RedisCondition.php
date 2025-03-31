@@ -6,7 +6,7 @@ use Yii;
 use yii\base\BaseObject;
 class RedisCondition extends BaseObject implements Condition
 {
-	public $redis;
+	public $redis = 'redis';
 	public function signal(string $key, $data)
 	{
 		$redis = Yii::$app->get($this->redis);

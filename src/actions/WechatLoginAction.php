@@ -16,6 +16,7 @@ class WechatLoginAction extends Action
 	public $checkDelay = 1000;
 	public $qrTicketUrl;
 	public $statusUrl;
+	public $oauthCallback;
 	public $view = '@wechat/views/login';
 	public function init()
 	{
@@ -27,6 +28,9 @@ class WechatLoginAction extends Action
 				'class' => OAuthFilter::class,
 				'wechat' => $this->wechat,
 			]);
+			if (is_callable($this->oauthCallback)) {
+				$event->sender->controller->on(OAuthFilter::EVENT_OAUTH, $this->oauthCallback);
+			}
 		});
 	}
 	public function run()

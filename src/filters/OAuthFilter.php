@@ -32,7 +32,7 @@ class OAuthFilter extends ActionFilter
 		$userInfo = Yii::$app->request->cookies->getValue(self::OAUTH_COOKIE_NAME);
 		if (!empty($userInfo)) {
 			$event = new OAuthEvent($userInfo);
-			$this->wechat->trigger(self::EVENT_OAUTH, $event);
+			$this->owner->trigger(self::EVENT_OAUTH, $event);
 			return $event->continue && parent::beforeAction($action);
 		}
 		$code = Yii::$app->request->get('code');
@@ -63,7 +63,7 @@ class OAuthFilter extends ActionFilter
 			'expire' => $userInfo['refresh_token_expire'],
 		]));
 		$event = new OAuthEvent($userInfo);
-		$this->wechat->trigger(self::EVENT_OAUTH, $event);
+		$this->owner->trigger(self::EVENT_OAUTH, $event);
 		return $event->continue && parent::beforeAction($action);
 	}
 }

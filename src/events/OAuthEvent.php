@@ -13,4 +13,5 @@ class OAuthEvent extends Event
 	public $refresh_token;
 	public $access_token_expire;
 	public $refresh_token_expire;
+	public $continue = true;
 }

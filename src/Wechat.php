@@ -18,8 +18,6 @@ use yii\wechat\utils\DummyUnionIDMapper;
 
 class Wechat extends Component
 {
-	public const OAUTH_TYPE_BASE = 'snsapi_base';
-	public const OAUTH_TYPE_USERINFO = 'snsapi_userinfo';
 	public const EVENT_ACCESS_TOKEN_REFRESHED = 'access_token_refreshed';
 	public const EVENT_MESSAGE = 'wechat.message';
 	public const EVENT_SUBSCRIBE = 'wechat.subscribe';
@@ -28,7 +26,6 @@ class Wechat extends Component
 	public const EVENT_LOCATION = 'wechat.location';
 	public const EVENT_CLICK = 'wechat.click';
 	public const EVENT_VIEW = 'wechat.view';
-	public const EVENT_OAUTH = 'wechat.oauth';
 	public const MESSAGE_TEXT = 'text';
 	public const MESSAGE_IMAGE = 'image';
 	public const MESSAGE_VOICE = 'voice';
@@ -36,7 +33,6 @@ class Wechat extends Component
 	public const MESSAGE_SHORTVIDEO = 'shortvideo';
 	public const MESSAGE_LOCATION = 'location';
 	public const MESSAGE_LINK = 'link';
-	public const OAUTH_COOKIE_NAME = '__wechat_oauth_info';
 	private const OAUTH_TOKEN_CACHE_KEY = '__oauth_token_by_openid';
 	private const OAUTH_TOKEN_LOCK_KEY = '__oauth_token_lock';
 	private const OAUTH_TOKEN_TTL = 30 * 24 * 60 * 60;
@@ -78,11 +74,12 @@ class Wechat extends Component
 	{
 		return strpos(Yii::$app->request->userAgent, 'MicroMessenge') !== false;
 	}
-	public function authRequired(string $oauthUrl, string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
+	public function authRequired(string $type = self::OAUTH_TYPE_USERINFO, string $state = '')
 	{
+		$redirectUrl = Yii::$app->request->absoluteUrl;
 		$url = 'https://open.weixin.qq.com/connect/oauth2/authorize';
 		$url .= '?appid=' . urlencode($this->appId);
-		$url .= '&redirect_uri=' . urlencode($oauthUrl);
+		$url .= '&redirect_uri=' . urlencode($redirectUrl);
 		$url .= '&response_type=code&scope=' . urlencode($type);
 		$url .= '&state=' . urlencode($state);
 		$url .= '#wechat_redirect';

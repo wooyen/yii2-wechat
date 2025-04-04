@@ -59,8 +59,8 @@ class MessageAction extends Action
 		}
 		Yii::$app->response->format = Response::FORMAT_XML;
 		$res = array_merge([
-			'ToUserName' => $event->from,
-			'FromUserName' => $event->to,
+			'ToUserName' => $event->fromUserName,
+			'FromUserName' => $event->toUserName,
 			'CreateTime' => time(),
 		], $event->response);
 		Yii::trace($res, __METHOD__);

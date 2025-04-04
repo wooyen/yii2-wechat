@@ -27,6 +27,7 @@ abstract class WechatEvent extends Event
 		if ($config['msgType'] != 'event') {
 			return self::createMessageEvent($config);
 		}
+		unset($config['msgType']);
 		switch ($config['event']) {
 			case 'subscribe':
 				if (!empty($config['eventKey'])) {
@@ -50,7 +51,9 @@ abstract class WechatEvent extends Event
 
 	private static function createMessageEvent(array $config): MessageEvent
 	{
-		switch ($config['msgType']) {
+		$msgType = $config['msgType'];
+		unset($config['msgType']);
+		switch ($msgType) {
 			case Wechat::MESSAGE_TEXT:
 				return new TextMsgEvent($config);
 			case Wechat::MESSAGE_IMAGE:
@@ -66,7 +69,7 @@ abstract class WechatEvent extends Event
 			case Wechat::MESSAGE_LINK:
 				return new LinkMsgEvent($config);
 			default:
-				throw new UnknownMessageException($config['MsgType']);
+				throw new UnknownMessageException($msgType);
 		}
 	}
 

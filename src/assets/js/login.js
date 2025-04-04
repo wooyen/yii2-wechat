@@ -18,7 +18,7 @@ function checkLoginStatus(scene, expire_at) {
 	}
 	$.get(statusUrl, { scene: scene }, function (response) {
 		if (response.code === 0) {
-			if (response.data.status === 'success') {
+			if (response.data.status === 'scanned') {
 				$('.wechat-login-status').html('<p class="text-success">登录成功，正在跳转...</p>');
 				window.location.href = backUrl;
 			} else if (response.data.status === 'expired') {

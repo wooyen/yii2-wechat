@@ -57,7 +57,7 @@ class MessageAction extends Action
 		if (empty($event->response)) {
 			return 'success';
 		}
-		$this->response->format = Response::FORMAT_XML;
+		Yii::$app->response->format = Response::FORMAT_XML;
 		$res = array_merge([
 			'ToUserName' => $event->from,
 			'FromUserName' => $event->to,

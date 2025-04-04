@@ -38,7 +38,7 @@ class WechatLoginAction extends Action
 		return $this->controller->render($this->view, [
 			'qrTicketUrl' => Url::toRoute($this->qrTicketUrl),
 			'statusUrl' => Url::toRoute($this->statusUrl),
-			'backUrl' => Url::toRoute(Yii::$app->user->getReturnUrl()),
+			'backUrl' => Yii::$app->user->getReturnUrl(),
 			'checkDelay' => $this->checkDelay,
 		]);
 	}

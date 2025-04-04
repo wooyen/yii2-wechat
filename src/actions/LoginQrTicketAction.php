@@ -91,9 +91,7 @@ class LoginQrTicketAction extends Action
 				return $data;
 			}
 			Yii::debug("wait $cacheKey", __METHOD__);
-			if (!$cond->wait(self::WAITING_PIPE_KEY_PREFIX . $scene)) {
-				return $data;
-			}
+			$cond->wait(self::WAITING_PIPE_KEY_PREFIX . $scene);
 		}
 		return $data;
 	}

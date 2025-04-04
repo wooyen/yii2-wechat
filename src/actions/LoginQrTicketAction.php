@@ -9,7 +9,7 @@ use yii\caching\Cache;
 use yii\di\Instance;
 use yii\web\Response;
 use yii\wechat\Wechat;
-
+use yii\wechat\utils\Condition;
 class LoginQrTicketAction extends Action
 {
 	public const CACHE_KEY_PREFIX = 'wechat_scene_login_';
@@ -67,7 +67,7 @@ class LoginQrTicketAction extends Action
 		$data['user_id'] = $user_id;
 		$cache->set($cacheKey, $data, self::CACHE_TTL_AFTER_SCAN);
 		Yii::debug("save scanned data in $cacheKey: " . json_encode($data), __METHOD__);
-		if ($data['condition'] && $data['condition'] instanceof LoginSceneCondition) {
+		if ($data['condition'] && $data['condition'] instanceof Condition) {
 			$data['condition']->signal(self::WAITING_PIPE_KEY_PREFIX . $scene, $user_id);
 		}
 		return true;
@@ -87,7 +87,7 @@ class LoginQrTicketAction extends Action
 				$cache->delete($cacheKey);
 				return $data;
 			}
-			if ($i > 0 || !$cond || $cond instanceof LoginSceneCondition) {
+			if ($i > 0 || $cond instanceof Condition) {
 				return $data;
 			}
 			Yii::debug("wait $cacheKey", __METHOD__);

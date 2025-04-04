@@ -28,7 +28,9 @@ abstract class WechatEvent extends Event
 			return self::createMessageEvent($config);
 		}
 		unset($config['msgType']);
-		switch ($config['event']) {
+		$eventType = $config['event'];
+		unset($config['event']);
+		switch ($eventType) {
 			case 'subscribe':
 				if (!empty($config['eventKey'])) {
 					$config['eventKey'] = substr($config['eventKey'], 8);
@@ -45,7 +47,7 @@ abstract class WechatEvent extends Event
 			case 'VIEW':
 				return new ViewEvent($config);
 			default:
-				throw new UnknownEventException($config['event']);
+				throw new UnknownEventException($eventType);
 		}
 	}
 

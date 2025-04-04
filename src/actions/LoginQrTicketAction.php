@@ -54,16 +54,19 @@ class LoginQrTicketAction extends Action
 	public static function scaned(string $scene, $user_id, Cache $cache)
 	{
 		$cacheKey = self::CACHE_KEY_PREFIX . $scene;
+		Yii::debug('scaned: ' . $cacheKey, __METHOD__);
 		$data = $cache->get($cacheKey);
 		if ($data === false) {
 			return false;
 		}
+		Yii::debug($data, __METHOD__);
 		if ($data['status'] !== 'waiting') {
 			return false;
 		}
 		$data['status'] = 'scanned';
 		$data['user_id'] = $user_id;
 		$cache->set($cacheKey, $data, self::CACHE_TTL_AFTER_SCAN);
+		Yii::debug("save scanned data in $cacheKey: " . json_encode($data), __METHOD__);
 		if ($data['condition'] && $data['condition'] instanceof LoginSceneCondition) {
 			$data['condition']->signal(self::WAITING_PIPE_KEY_PREFIX . $scene, $user_id);
 		}
@@ -74,6 +77,7 @@ class LoginQrTicketAction extends Action
 		$cacheKey = self::CACHE_KEY_PREFIX . $scene;
 		for ($i = 0; $i < 2; ++$i) {
 			$data = $cache->get($cacheKey);
+			Yii::debug("check $cacheKey: " . json_encode($data), __METHOD__);
 			if ($data === false) {
 				return false;
 			}
@@ -86,6 +90,7 @@ class LoginQrTicketAction extends Action
 			if ($i > 0 || !$cond || $cond instanceof LoginSceneCondition) {
 				return $data;
 			}
+			Yii::debug("wait $cacheKey", __METHOD__);
 			if (!$cond->wait(self::WAITING_PIPE_KEY_PREFIX . $scene)) {
 				return $data;
 			}

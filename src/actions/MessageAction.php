@@ -91,7 +91,7 @@ class MessageAction extends Action
 
 	private function calcSHA1(string $nonce, int $timestamp, ?string $data = null): string
 	{
-		$arr = [$nonce, $timestamp, $this->wechat->msg_token];
+		$arr = [$nonce, $timestamp, $this->wechat->msgToken];
 		if ($data !== null) {
 			$arr[] = $data;
 		}
@@ -105,7 +105,7 @@ class MessageAction extends Action
 			Yii::error("Encrypted message signature mismatch", __METHOD__);
 			throw new SignatureException("Encrypted message signature mismatch");
 		}
-		$key = base64_decode($this->wechat->msg_aes_key);
+		$key = base64_decode($this->wechat->msgAesKey);
 		$iv = substr($key, 0, 16);
 		$decrypted = openssl_decrypt($encrypted, 'aes-256-cbc', $key, OPENSSL_ZERO_PADDING, $iv);
 		if ($decrypted === false) {
@@ -131,7 +131,7 @@ class MessageAction extends Action
 		$this->arr2xml($input, $xml);
 		$xmlStr = preg_replace('/^<\?xml [^\?]*\?{1}>\s*/', '', $xml->asXML());
 		$text = $this->randomString(16) . pack('N', strlen($xmlStr)) . $xmlStr . $this->appid;
-		$key = base64_decode($this->wechat->msg_aes_key);
+		$key = base64_decode($this->wechat->msgAesKey);
 		$iv = substr($key, 0, 16);
 		$paddingLength = 32 - strlen($text) % 32;
 		$text .= str_repeat(chr($paddingLength), $paddingLength);

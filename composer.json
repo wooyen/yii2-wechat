@@ -10,7 +10,9 @@
 	"require-dev": {
 		"yiisoft/yii2-redis": "~2.0.0"
 	},
-	"suggest": {},
+	"suggest": {
+		"yiisoft/yii2-redis": "~2.0.0"
+	},
 	"license": "GPL-3.0-or-later",
 	"autoload": {
 		"psr-4": {
